@@ -9,7 +9,7 @@ const CartItem = sequalize.define("cartItem", {
     autoIncrement: true,
     allowNull: false,
   },
-  quantity: Sequelize.NUMBER,
+  quantity: Sequelize.INTEGER,
 });
 
 module.exports = CartItem;
