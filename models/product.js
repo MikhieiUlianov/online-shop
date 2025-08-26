@@ -1,21 +1,29 @@
-const mongodb = require("mongodb");
+const { ObjectId } = require("mongodb");
 const getDb = require("../util/database").getDb;
 
 class Product {
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
+    this._id = id;
   }
 
   save() {
     const db = getDb();
-    return db
-      .collection("products")
-      .insertOne(this)
+    let dbOp;
+    if (this._id) {
+      const idObj = ObjectId.createFromHexString(this._id);
+      dbOp = db
+        .collection("products")
+        .updateOne({ _id: idObj }, { $set: this });
+    } else {
+      dbOp = db.collection("products").insertOne(this);
+    }
+    return dbOp
       .then((res) => console.log(res))
-      .cathc((err) => console.log(err));
+      .catch((err) => console.log(err));
   }
 
   static fetchAll() {
@@ -25,17 +33,18 @@ class Product {
       .find()
       .toArray()
       .then((products) => products)
-      .cathc((err) => console.log(err));
+      .catch((err) => console.log(err));
   }
 
   static findById(id) {
+    const idObj = ObjectId.createFromHexString(id);
     const db = getDb();
     return db
       .collection("products")
-      .find({ _id: new mongodb.ObjectId(id) })
+      .find({ _id: idObj })
       .next()
       .then((product) => product)
-      .cathc((err) => console.log(err));
+      .catch((err) => console.log(err));
   }
 }
 
