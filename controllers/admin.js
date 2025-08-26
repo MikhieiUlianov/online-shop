@@ -1,5 +1,3 @@
-const { ObjectId } = require("mongodb");
-
 const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
@@ -58,7 +56,7 @@ exports.postEditProduct = (req, res, next) => {
     updatedPrice,
     updatedDesc,
     updatedImageUrl,
-    ObjectId.createFromHexString(prodId)
+    prodId
   );
   product
     .save()
@@ -83,10 +81,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByPk(prodId)
-    .then((product) => {
-      return product.destroy();
-    })
+  Product.removeById(prodId)
     .then((result) => {
       console.log("DESTROYED PRODUCT");
       res.redirect("/admin/products");
