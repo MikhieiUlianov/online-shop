@@ -38,6 +38,18 @@ class User {
     );
   }
 
+  deleteItemFromCart(prodId) {
+    const db = getDb();
+    const updatedCart = this.cart.items.filter(
+      (p) => p.id.toString() !== prodId.toString()
+    );
+
+    db.collection("users").findOne(
+      { _id: Object.createFromHexString() },
+      { $set: { cart: { items: updatedCart } } }
+    );
+  }
+
   getCart() {
     const db = getDb();
     /*   return this.cart.map(product => {
