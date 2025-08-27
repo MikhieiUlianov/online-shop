@@ -33,7 +33,7 @@ class User {
     const updatedCart = [...updatedCartItems];
 
     db.collection("users").findOne(
-      { _id: Object.createFromHexString() },
+      { _id: Object.createFromHexString(this._id) },
       { $set: { cart: updatedCart } }
     );
   }
@@ -45,16 +45,13 @@ class User {
     );
 
     db.collection("users").findOne(
-      { _id: Object.createFromHexString() },
+      { _id: Object.createFromHexString(this._id) },
       { $set: { cart: { items: updatedCart } } }
     );
   }
 
   getCart() {
     const db = getDb();
-    /*   return this.cart.map(product => {
-      return db.collection("products").findOne({_id: product.productId})
-     }) */
     const productIds = this.cart.items.map((i) => i.productId);
     return db
       .collection("products")
@@ -70,6 +67,41 @@ class User {
           };
         });
       });
+  }
+
+  addOrder() {
+    const db = getDb();
+
+    return this.getCart()
+      .then((products) => {
+        const order = {
+          items: products,
+          user: {
+            _id: ObjectId.createFromHexString(this._id),
+            name: this.name,
+          },
+        };
+        return db.collection("orders").insertOne(order);
+      })
+      .then((res) => {
+        this.cart = [];
+
+        return db
+          .collection("users")
+          .findOne(
+            { _id: Object.createFromHexString(this._id) },
+            { $set: { cart: { items: [] } } }
+          );
+      })
+      .catch((err) => console.log(err));
+  }
+
+  getOrder() {
+    const db = getDb();
+    return db
+      .collection("orders")
+      .find({ "user._id": Object.createFromHexString(this._id) })
+      .toArray();
   }
 
   static findById(id) {

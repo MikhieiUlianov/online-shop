@@ -48,14 +48,27 @@ class Product {
       .catch((err) => console.log(err));
   }
 
-  static removeById(id) {
-    const idObj = ObjectId.createFromHexString(id);
+  static deleteById(prodId, userId) {
     const db = getDb();
     return db
       .collection("products")
-      .deleteOne({ id: idObj })
-      .then((res) => res)
-      .catch((err) => console.log(err));
+      .deleteOne({ _id: new ObjectId(prodId) })
+      .then((result) => {
+        return db.collection("users").updateOne(
+          { _id: new ObjectId(userId) },
+          {
+            $pull: {
+              "cart.items": { productId: new ObjectId(prodId) },
+            },
+          }
+        );
+      })
+      .then((result) => {
+        console.log("Cart Item Deleted");
+      })
+      .then(() => {
+        console.log("Product Deleted");
+      });
   }
 }
 
