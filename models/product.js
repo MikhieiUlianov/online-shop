@@ -52,13 +52,13 @@ class Product {
     const db = getDb();
     return db
       .collection("products")
-      .deleteOne({ _id: new ObjectId(prodId) })
+      .deleteOne({ _id: ObjectId.createFromHexString(prodId) })
       .then((result) => {
         return db.collection("users").updateOne(
-          { _id: new ObjectId(userId) },
+          { _id: ObjectId.createFromHexString(userId) },
           {
             $pull: {
-              "cart.items": { productId: new ObjectId(prodId) },
+              "cart.items": { productId: ObjectId.createFromHexString(prodId) },
             },
           }
         );
