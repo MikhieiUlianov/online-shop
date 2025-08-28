@@ -9,7 +9,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  name: {
+  cart: {
     items: [
       {
         productId: {
@@ -48,7 +48,7 @@ userSchema.methods.addToCart = function (product) {
   return this.save();
 };
 
-userSchema.methods.dremoveFromCart = function (prodId) {
+userSchema.methods.removeFromCart = function (prodId) {
   const updatedCart = this.cart.items.filter(
     (p) => p.id.toString() !== prodId.toString()
   );
