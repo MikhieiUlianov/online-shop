@@ -1,4 +1,4 @@
-const { Schema } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 const productSchema = new Schema({
   title: {
@@ -19,7 +19,7 @@ const productSchema = new Schema({
   },
 });
 
-module.exports = productSchema;
+module.exports = model("Product", productSchema);
 
 /* const { ObjectId } = require("mongodb");
 const getDb = require("../util/database").getDb;
