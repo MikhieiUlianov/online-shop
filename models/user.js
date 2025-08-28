@@ -48,6 +48,16 @@ userSchema.methods.addToCart = function (product) {
   return this.save();
 };
 
+userSchema.methods.dremoveFromCart = function (prodId) {
+  const updatedCart = this.cart.items.filter(
+    (p) => p.id.toString() !== prodId.toString()
+  );
+
+  this.cart.items = updatedCart;
+
+  this.save();
+};
+
 module.exprots = model("User", userSchema);
 
 /* const getDb = require("../util/database").getDb;
