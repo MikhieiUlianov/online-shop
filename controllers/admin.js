@@ -18,6 +18,7 @@ exports.postAddProduct = (req, res, next) => {
     imageUrl,
     price,
     description,
+    userId: req.user,
   });
   product
     .save()
@@ -71,7 +72,10 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  // '-_id' means that we exclude this prop
   Product.find()
+    /*   .select("title price -_id")
+    .populate("userId") */
     .then((products) => {
       res.render("admin/products", {
         prods: products,
@@ -84,7 +88,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
+  Product.findByIdAndDelete(prodId)
     .then((result) => {
       console.log("DESTROYED PRODUCT");
       res.redirect("/admin/products");

@@ -1,4 +1,56 @@
-const getDb = require("../util/database").getDb;
+const { Schema, model } = require("mongoose");
+
+const userSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  name: {
+    items: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+  },
+});
+
+userSchema.methods.addToCart = function (product) {
+  const cartProductIndex = this.cart.items.findIndex(
+    (cp) => cp.productId.toString() === product._id.toString()
+  );
+  let newQuantity = 1;
+  const updatedCartItems = [...this.cart.s];
+
+  if (cartProductIndex >= 0) {
+    newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+    updatedCartItems[cartProductIndex].quantity = newQuantity;
+  } else {
+    updatedCartItems.push({
+      productId: product.id,
+      quantity: newQuantity,
+    });
+  }
+
+  const updatedCart = [...updatedCartItems];
+  this.cart = updatedCart;
+  return this.save();
+};
+
+module.exprots = model("User", userSchema);
+
+/* const getDb = require("../util/database").getDb;
 const { ObjectId } = require("mongodb");
 class User {
   constructor(name, email, cart, id) {
@@ -114,3 +166,4 @@ class User {
 }
 
 module.exports = User;
+ */
