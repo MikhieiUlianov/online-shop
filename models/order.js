@@ -1,42 +1,25 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-  products: {
-    product: {
-      type: Object,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-  },
+  products: [
+    {
+      product: { type: Object, required: true },
+      quantity: { type: Number, required: true }
+    }
+  ],
   user: {
+    name: {
+      type: String,
+      required: true
+    },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
       required: true,
-    },
-    name: { String, required: true, ref: User },
-  },
+      ref: 'User'
+    }
+  }
 });
 
-/* orderSchema.methods.AddOrder = function () {
-  return this.cart.items
-    .populate("user.items.productId")
-    .then((products) => {
-      const order = {
-        items: products,
-        user: {},
-      };
-      return db.collection("orders").insertOne(order);
-    })
-    .then((res) => {
-      this.cart = [];
-
-      return this.save();
-    })
-    .catch((err) => console.log(err));
-};
- */
-module.exports = model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);
