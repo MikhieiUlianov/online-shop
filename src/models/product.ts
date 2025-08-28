@@ -1,32 +1,42 @@
-const mongoose = require('mongoose');
+import { Types, Document } from "mongoose";
+
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
+
+export interface ProductType extends Document {
+  title: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  _id: Types.ObjectId;
+}
 
 const productSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   imageUrl: {
     type: String,
-    required: true
+    required: true,
   },
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
+    ref: "User",
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('Product', productSchema);
+export default mongoose.model("Product", productSchema);
 
 // const mongodb = require('mongodb');
 // const getDb = require('../util/database').getDb;

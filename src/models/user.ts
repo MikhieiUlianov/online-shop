@@ -1,32 +1,47 @@
-const mongoose = require('mongoose');
+import { Types, model, Schema, Document } from "mongoose";
+import { ProductType } from "./product";
 
-const Schema = mongoose.Schema;
+export interface CartItem {
+  productId: Types.ObjectId;
+  quantity: number;
+}
 
-const userSchema = new Schema({
+export interface UserType extends Document {
+  name: string;
+  email: string;
+  cart: {
+    items: CartItem[];
+  };
+  addToCart: (product: ProductType) => Promise<UserType>;
+  removeFromCart: (productId: Types.ObjectId) => Promise<UserType>;
+  clearCart: () => Promise<UserType>;
+}
+
+const userSchema = new Schema<UserType>({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
-    required: true
+    required: true,
   },
   cart: {
     items: [
       {
         productId: {
           type: Schema.Types.ObjectId,
-          ref: 'Product',
-          required: true
+          ref: "Product",
+          required: true,
         },
-        quantity: { type: Number, required: true }
-      }
-    ]
-  }
+        quantity: { type: Number, required: true },
+      },
+    ],
+  },
 });
 
-userSchema.methods.addToCart = function(product) {
-  const cartProductIndex = this.cart.items.findIndex(cp => {
+userSchema.methods.addToCart = function (product: ProductType) {
+  const cartProductIndex = this.cart.items.findIndex((cp: CartItem) => {
     return cp.productId.toString() === product._id.toString();
   });
   let newQuantity = 1;
@@ -38,30 +53,30 @@ userSchema.methods.addToCart = function(product) {
   } else {
     updatedCartItems.push({
       productId: product._id,
-      quantity: newQuantity
+      quantity: newQuantity,
     });
   }
   const updatedCart = {
-    items: updatedCartItems
+    items: updatedCartItems,
   };
   this.cart = updatedCart;
   return this.save();
 };
 
-userSchema.methods.removeFromCart = function(productId) {
-  const updatedCartItems = this.cart.items.filter(item => {
+userSchema.methods.removeFromCart = function (productId: Types.ObjectId) {
+  const updatedCartItems = this.cart.items.filter((item: CartItem) => {
     return item.productId.toString() !== productId.toString();
   });
   this.cart.items = updatedCartItems;
   return this.save();
 };
 
-userSchema.methods.clearCart = function() {
+userSchema.methods.clearCart = function () {
   this.cart = { items: [] };
   return this.save();
 };
 
-module.exports = mongoose.model('User', userSchema);
+export default model("User", userSchema);
 
 // const mongodb = require('mongodb');
 // const getDb = require('../util/database').getDb;
