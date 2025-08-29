@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import User from "../models/user.js";
 
 export const getLogin = (req: Request, res: Response) => {
   const isLoggedIn = req.get("cookie")?.split(";")[1].trim().split("=")[1];
@@ -10,7 +11,23 @@ export const getLogin = (req: Request, res: Response) => {
 };
 
 export const postLogin = (req: Request, res: Response) => {
-  /*   res.setHeader("Set-Cookie", "loggedIn=true"); */
-  req.session.isLoggedIn = true;
-  res.redirect("/");
+  User.findById("5bab316ce0a7c75f783cb8a8")
+    .then((user) => {
+      if (user) {
+        req.session.user = user;
+        req.session.isLoggedIn = true;
+        req.session.save((err) => {
+          console.log(err);
+          res.redirect("/");
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+export const postLogout = (req: Request, res: Response) => {
+  req.session.destroy((err) => {
+    res.redirect("/");
+    console.log(err);
+  });
 };

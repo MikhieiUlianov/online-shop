@@ -13,5 +13,6 @@ declare global {
 declare module "express-session" {
   interface SessionData {
     isLoggedIn?: boolean;
+    user: UserType | null;
   }
 }
