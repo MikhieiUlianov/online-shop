@@ -12,6 +12,7 @@ export const getProducts = (req: Request, res: Response) => {
         prods: products,
         pageTitle: "All Products",
         path: "/products",
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err: unknown) => {
@@ -27,6 +28,7 @@ export const getProduct = (req: Request, res: Response) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err: unknown) => console.log(err));
@@ -39,6 +41,7 @@ export const getIndex = (req: Request, res: Response) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err: unknown) => {
@@ -55,6 +58,7 @@ export const getCart = (req: Request, res: Response) => {
         path: "/cart",
         pageTitle: "Your Cart",
         products: products,
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err: unknown) => console.log(err));
@@ -125,6 +129,7 @@ export const getOrders = (req: Request, res: Response) => {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err: unknown) => console.log(err));
