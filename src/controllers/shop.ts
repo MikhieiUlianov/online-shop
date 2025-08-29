@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import Product, { ProductType } from "../models/product";
-import { UserType } from "../models/user";
-import { OrderType } from "../models/order";
+import Product, { ProductType } from "../models/product.js";
+import { UserType } from "../models/user.js";
+import { OrderType } from "../models/order.js";
 const Order = require("../models/order");
 
 export const getProducts = (req: Request, res: Response) => {

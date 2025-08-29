@@ -1,4 +1,5 @@
-import { UserType } from "./models/user";
+import { UserType } from "./models/user.js";
+import "express-session";
 
 declare global {
   namespace Express {
@@ -6,5 +7,11 @@ declare global {
       user?: UserType;
       isLoggedIn: boolean;
     }
+  }
+}
+
+declare module "express-session" {
+  interface SessionData {
+    isLoggedIn?: boolean;
   }
 }

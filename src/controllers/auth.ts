@@ -10,6 +10,7 @@ export const getLogin = (req: Request, res: Response) => {
 };
 
 export const postLogin = (req: Request, res: Response) => {
-  res.setHeader("Set-Cookie", "loggedIn=true");
+  /*   res.setHeader("Set-Cookie", "loggedIn=true"); */
+  req.session.isLoggedIn = true;
   res.redirect("/");
 };

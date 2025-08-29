@@ -1,4 +1,4 @@
-import Product, { ProductType } from "../models/product";
+import Product, { ProductType } from "../models/product.js";
 import { Request, Response } from "express";
 
 export const getAddProduct = (req: Request, res: Response) => {
