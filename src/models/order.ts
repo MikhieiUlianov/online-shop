@@ -7,7 +7,7 @@ export type OrderType = {
     quantity: number;
   };
   user: {
-    name: string;
+    email: string;
     userId: Types.ObjectId;
   };
 };
@@ -20,7 +20,7 @@ const orderSchema = new Schema<OrderType>({
     },
   ],
   user: {
-    name: {
+    email: {
       type: String,
       required: true,
     },

@@ -4,24 +4,25 @@ import MongoDBStore from "connect-mongodb-session";
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import mongoose, { Mongoose } from "mongoose";
+import csurf from "csurf";
 
 import get404 from "./controllers/error.js";
-import User, { UserType } from "./models/user.js";
+import User from "./models/user.js";
 
 import adminRoutes from "./routes/admin.js";
 import shopRoutes from "./routes/shop.js";
 import authRoutes from "./routes/auth.js";
 
-const app = express();
-
 const MONGODB_URI =
   "mongodb+srv://username:password@cluster0.mongodb.net/mydatabase";
 
+const app = express();
 const MongoStore = MongoDBStore(session);
 const store = new MongoStore({
   uri: MONGODB_URI,
   collection: "sessions",
 });
+const csrfProtection = csurf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -36,6 +37,7 @@ app.use(
     store,
   })
 );
+app.use(csrfProtection);
 app.use((req: Request, res: Response, next: NextFunction) => {
   User.findById(req.session.user?._id)
     .then((user) => {
@@ -47,6 +49,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     .catch((err) => console.log(err));
 });
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
