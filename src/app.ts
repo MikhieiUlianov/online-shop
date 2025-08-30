@@ -5,6 +5,7 @@ import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import mongoose, { Mongoose } from "mongoose";
 import csurf from "csurf";
+import flash from "connect-flash";
 
 import get404 from "./controllers/error.js";
 import User from "./models/user.js";
@@ -38,6 +39,8 @@ app.use(
   })
 );
 app.use(csrfProtection);
+app.use(flash());
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   User.findById(req.session.user?._id)
     .then((user) => {

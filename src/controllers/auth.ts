@@ -3,19 +3,24 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 
 export const getLogin = (req: Request, res: Response) => {
-  const isLoggedIn = req.get("cookie")?.split(";")[1].trim().split("=")[1];
+  const errors: string[] = req.flash("error");
+  const message: string | null = errors.length > 0 ? errors[0] : null;
+
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: isLoggedIn,
+    errorMessage: message,
   });
 };
 
 export const getSignup = (req: Request, res: Response) => {
+  const errors: string[] = req.flash("error");
+  const message: string | null = errors.length > 0 ? errors[0] : null;
+
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
-    isAuthenticated: false,
+    errorMessage: message,
   });
 };
 
@@ -27,7 +32,9 @@ export const postLogin = async (req: Request, res: Response) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      throw new Error("User not found");
+      req.flash("error", "Invalid email or password.");
+      return res.redirect("/login");
+      /*   throw new Error("User not found"); */
     }
 
     const matchedPass = await bcrypt.compare(password, user.password);
@@ -40,6 +47,7 @@ export const postLogin = async (req: Request, res: Response) => {
         res.redirect("/");
       });
     }
+    req.flash("error", "Invalid email or password.");
     return res.redirect("/login");
   } catch (error: unknown) {
     console.log(error);
@@ -55,7 +63,9 @@ export const postSignup = (req: Request, res: Response) => {
   User.findOne({ email: email })
     .then((userDoc) => {
       if (userDoc) {
-        throw new Error("User exists");
+        req.flash("error", "User exists.");
+        res.redirect("/login");
+        /*       throw new Error("User exists");  */
       }
       return bcrypt.hash(password, 12);
     })
