@@ -9,6 +9,9 @@ export interface CartItem {
 export interface UserType extends Document {
   password: string;
   email: string;
+  resetToken: string;
+  resetTokenExpiration: number;
+  _id: Types.ObjectId;
   cart: {
     items: CartItem[];
   };
@@ -26,6 +29,8 @@ const userSchema = new Schema<UserType>({
     type: String,
     required: true,
   },
+  resetToken: String,
+  resetTokenExpiration: Date,
   cart: {
     items: [
       {
