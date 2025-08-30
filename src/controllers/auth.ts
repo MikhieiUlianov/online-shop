@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
+import { sendTestEmail } from "../mailer.js";
 
 export const getLogin = (req: Request, res: Response) => {
   const errors: string[] = req.flash("error");
@@ -80,6 +82,11 @@ export const postSignup = (req: Request, res: Response) => {
     })
     .then(() => {
       res.redirect("/login");
+      return sendTestEmail(
+        email,
+        "Signup Successfully!",
+        "Account has been created successfully!"
+      );
     })
     .catch((err) => {
       console.log(err);
