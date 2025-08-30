@@ -1,5 +1,5 @@
 import { Types, model, Schema, Document } from "mongoose";
-import { ProductType } from "./product";
+import { ProductType } from "./product.js";
 
 export interface CartItem {
   productId: Types.ObjectId;
@@ -7,7 +7,7 @@ export interface CartItem {
 }
 
 export interface UserType extends Document {
-  name: string;
+  password: string;
   email: string;
   cart: {
     items: CartItem[];
@@ -18,11 +18,11 @@ export interface UserType extends Document {
 }
 
 const userSchema = new Schema<UserType>({
-  name: {
+  email: {
     type: String,
     required: true,
   },
-  email: {
+  password: {
     type: String,
     required: true,
   },

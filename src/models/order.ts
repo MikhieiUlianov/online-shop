@@ -1,5 +1,5 @@
 import { Types, model, Schema } from "mongoose";
-import { ProductType } from "./product";
+import { ProductType } from "./product.js";
 
 export type OrderType = {
   products: {
