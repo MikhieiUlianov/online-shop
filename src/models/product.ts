@@ -10,6 +10,7 @@ export interface ProductType extends Document {
   description: string;
   imageUrl: string;
   _id: Types.ObjectId;
+  userId: Types.ObjectId;
 }
 
 const productSchema = new Schema({
