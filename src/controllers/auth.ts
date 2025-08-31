@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 
 import User, { UserType } from "../models/user.js";
 import { sendTestEmail } from "../mailer.js";
@@ -30,6 +31,16 @@ export const getSignup = (req: Request, res: Response) => {
 export const postLogin = async (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Signup",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
 
   try {
     const user = await User.findOne({ email: email });
@@ -61,16 +72,19 @@ export const postLogin = async (req: Request, res: Response) => {
 export const postSignup = (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
 
-  User.findOne({ email: email })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash("error", "User exists.");
-        res.redirect("/login");
-      }
-      return bcrypt.hash(password, 12);
-    })
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty) {
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
+
+  bcrypt
+    .hash(password, 12)
     .then((hashedPassword) => {
       const user = new User({
         email,
