@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 
-import User from "../models/user.js";
+import User, { UserType } from "../models/user.js";
 import { sendTestEmail } from "../mailer.js";
 
 export const getLogin = (req: Request, res: Response) => {
@@ -159,7 +159,35 @@ export const getNewPassword = (req: Request, res: Response) => {
         pageTitle: "Update Password",
         errorMessage: message,
         userId: user?._id.toString(),
+        passwordToken: token,
       });
     })
+    .catch((err) => console.log(err));
+};
+
+export const postNewPassword = (req: Request, res: Response) => {
+  const newPassowrd = req.body.password;
+  const userId = req.body.userId;
+  const passwordToken = req.body.passwordToken;
+  let resetUser: UserType | null = null;
+
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  })
+    .then((user) => {
+      resetUser = user;
+      return bcrypt.hash(newPassowrd, 12);
+    })
+    .then((hashedPass) => {
+      if (resetUser) {
+        resetUser.password = hashedPass;
+        resetUser.resetToken = null;
+        resetUser.resetTokenExpiration = undefined;
+        return resetUser.save();
+      }
+    })
+    .then(() => res.redirect("/"))
     .catch((err) => console.log(err));
 };

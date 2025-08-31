@@ -9,8 +9,8 @@ export interface CartItem {
 export interface UserType extends Document {
   password: string;
   email: string;
-  resetToken: string;
-  resetTokenExpiration: number;
+  resetToken: string | null;
+  resetTokenExpiration: number | undefined;
   _id: Types.ObjectId;
   cart: {
     items: CartItem[];
