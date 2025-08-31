@@ -1,9 +1,11 @@
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
-import User, { UserType } from "../models/user.js";
+import User, {
+  UserType,
+} from "../../../online-shop — копия/src/models/user.js";
 import { sendTestEmail } from "../mailer.js";
 
 export const getLogin = (req: Request, res: Response) => {
@@ -32,7 +34,11 @@ export const getSignup = (req: Request, res: Response) => {
   });
 };
 
-export const postLogin = async (req: Request, res: Response) => {
+export const postLogin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -80,11 +86,11 @@ export const postLogin = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.log(error);
-    res.redirect("/signup");
+    res.redirect("/500");
   }
 };
 
-export const postSignup = (req: Request, res: Response) => {
+export const postSignup = (req: Request, res: Response, next: NextFunction) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
@@ -120,9 +126,12 @@ export const postSignup = (req: Request, res: Response) => {
         "Account has been created successfully!"
       );
     })
-    .catch((err) => {
-      console.log(err);
-      res.redirect("/signup");
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -144,7 +153,7 @@ export const getReset = (req: Request, res: Response) => {
   });
 };
 
-export const postReset = (req: Request, res: Response) => {
+export const postReset = (req: Request, res: Response, next: NextFunction) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       console.log(err);
@@ -173,11 +182,21 @@ export const postReset = (req: Request, res: Response) => {
           );
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err: unknown) => {
+        const error: Error & { httpStatusCode?: number } = new Error(
+          "Something went wrong."
+        );
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   });
 };
 
-export const getNewPassword = (req: Request, res: Response) => {
+export const getNewPassword = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.params.token;
   User.findOne({
     resetToken: token,
@@ -194,10 +213,20 @@ export const getNewPassword = (req: Request, res: Response) => {
         passwordToken: token,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-export const postNewPassword = (req: Request, res: Response) => {
+export const postNewPassword = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const newPassowrd = req.body.password;
   const userId = req.body.userId;
   const passwordToken = req.body.passwordToken;
@@ -221,5 +250,11 @@ export const postNewPassword = (req: Request, res: Response) => {
       }
     })
     .then(() => res.redirect("/"))
-    .catch((err) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

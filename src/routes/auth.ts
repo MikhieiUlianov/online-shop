@@ -1,7 +1,7 @@
 import express from "express";
 import { check, body } from "express-validator";
 
-import User from "../models/user.js";
+import User from "../../../online-shop — копия/src/models/user.js";
 
 import {
   getLogin,
@@ -23,8 +23,12 @@ router.post(
   [
     body("password", "Please enter valid password.")
       .isLength({ min: 5 })
-      .isAlphanumeric(),
-    body("email").isEmail().withMessage("Please enter a valid email address"),
+      .isAlphanumeric()
+      .trim(),
+    body("email")
+      .isEmail()
+      .withMessage("Please enter a valid email address")
+      .normalizeEmail(),
   ],
   postLogin
 );
@@ -36,26 +40,27 @@ router.post(
       .isEmail()
       .withMessage("Please enter a valid email.")
       .custom((value, { req }) => {
-        /*   if (value === "test@test.com")
-          throw new Error("This email is forbidden!");
-        return true; */
         return User.findOne({ email: value }).then((userDoc) => {
           return Promise.reject(
             "E-mail exists already, please pick a different one."
           );
         });
-      }),
+      })
+      .normalizeEmail(),
     body(
       "passowrd",
       "Please enter a valid password with only number and text ant at least 5 characters."
     )
       .isLength({ min: 5 })
-      .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password)
-        throw new Error("Password have to match!");
-      return true;
-    }),
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password)
+          throw new Error("Password have to match!");
+        return true;
+      }),
   ],
   postSignup
 );

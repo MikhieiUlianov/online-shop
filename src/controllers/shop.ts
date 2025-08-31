@@ -1,10 +1,14 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import Product, { ProductType } from "../models/product.js";
 import { UserType } from "../models/user.js";
 import { OrderType } from "../models/order.js";
-const Order = require("../models/order");
+import Order from "../models/order.js";
 
-export const getProducts = (req: Request, res: Response) => {
+export const getProducts = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   Product.find()
     .then((products: ProductType[]) => {
       console.log(products);
@@ -15,11 +19,15 @@ export const getProducts = (req: Request, res: Response) => {
       });
     })
     .catch((err: unknown) => {
-      console.log(err);
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
-export const getProduct = (req: Request, res: Response) => {
+export const getProduct = (req: Request, res: Response, next: NextFunction) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product: ProductType) => {
@@ -29,10 +37,16 @@ export const getProduct = (req: Request, res: Response) => {
         path: "/products",
       });
     })
-    .catch((err: unknown) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-export const getIndex = (req: Request, res: Response) => {
+export const getIndex = (req: Request, res: Response, next: NextFunction) => {
   Product.find()
     .then((products: ProductType[]) => {
       res.render("shop/index", {
@@ -42,11 +56,15 @@ export const getIndex = (req: Request, res: Response) => {
       });
     })
     .catch((err: unknown) => {
-      console.log(err);
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
-export const getCart = (req: Request, res: Response) => {
+export const getCart = (req: Request, res: Response, next: NextFunction) => {
   req.user
     ?.populate("cart.items.productId")
     .then((user: UserType) => {
@@ -57,10 +75,16 @@ export const getCart = (req: Request, res: Response) => {
         products: products,
       });
     })
-    .catch((err: unknown) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-export const postCart = (req: Request, res: Response) => {
+export const postCart = (req: Request, res: Response, next: NextFunction) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then((product: ProductType) => {
@@ -72,17 +96,27 @@ export const postCart = (req: Request, res: Response) => {
     });
 };
 
-export const postCartDeleteProduct = (req: Request, res: Response) => {
+export const postCartDeleteProduct = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const prodId = req.body.productId;
   req.user
     ?.removeFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
     })
-    .catch((err: unknown) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-export const postOrder = (req: Request, res: Response) => {
+export const postOrder = (req: Request, res: Response, next: NextFunction) => {
   req.user
     ?.populate<{
       cart: { items: { productId: ProductType; quantity: number }[] };
@@ -115,10 +149,16 @@ export const postOrder = (req: Request, res: Response) => {
     .then(() => {
       res.redirect("/orders");
     })
-    .catch((err: unknown) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-export const getOrders = (req: Request, res: Response) => {
+export const getOrders = (req: Request, res: Response, next: NextFunction) => {
   Order.find({ "user.userId": req.session.user?._id })
     .then((orders: OrderType[]) => {
       res.render("shop/orders", {
@@ -127,5 +167,11 @@ export const getOrders = (req: Request, res: Response) => {
         orders: orders,
       });
     })
-    .catch((err: unknown) => console.log(err));
+    .catch((err: unknown) => {
+      const error: Error & { httpStatusCode?: number } = new Error(
+        "Something went wrong."
+      );
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

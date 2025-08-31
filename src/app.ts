@@ -7,7 +7,7 @@ import mongoose, { Mongoose } from "mongoose";
 import csurf from "csurf";
 import flash from "connect-flash";
 
-import get404 from "./controllers/error.js";
+import { get404, get500 } from "./controllers/error.js";
 import User from "./models/user.js";
 
 import adminRoutes from "./routes/admin.js";
@@ -44,12 +44,13 @@ app.use(flash());
 app.use((req: Request, res: Response, next: NextFunction) => {
   User.findById(req.session.user?._id)
     .then((user) => {
-      if (user) {
-        req.user = user;
-        next();
-      }
+      if (!user) return next();
+      req.user = user;
+      next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      next(new Error(err));
+    });
 });
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -61,7 +62,12 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.use("/500", get500);
 app.use(get404);
+
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  res.redirect("/500");
+});
 
 mongoose
   .connect(MONGODB_URI)
