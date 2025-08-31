@@ -14,6 +14,8 @@ export const getLogin = (req: Request, res: Response) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
+    oldInput: { email: "", password: "" },
+    validationErrors: [],
   });
 };
 
@@ -25,6 +27,8 @@ export const getSignup = (req: Request, res: Response) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput: { email: "", password: "", confirmPassword: "" },
+    validationErrors: [],
   });
 };
 
@@ -39,6 +43,8 @@ export const postLogin = async (req: Request, res: Response) => {
       path: "/login",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: { email, password },
+      validationErrors: errors.array(),
     });
   }
 
@@ -46,9 +52,13 @@ export const postLogin = async (req: Request, res: Response) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      req.flash("error", "Invalid email or password.");
-      return res.redirect("/login");
-      /*   throw new Error("User not found"); */
+      return res.status(422).render("auth/signup", {
+        path: "/signup",
+        pageTitle: "Signup",
+        errorMessage: "Invalid email or password.",
+        oldInput: { email, password },
+        validationErrors: [],
+      });
     }
 
     const matchedPass = await bcrypt.compare(password, user.password);
@@ -61,8 +71,13 @@ export const postLogin = async (req: Request, res: Response) => {
         res.redirect("/");
       });
     }
-    req.flash("error", "Invalid email or password.");
-    return res.redirect("/login");
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: "Invalid email or password.",
+      oldInput: { email, password },
+      validationErrors: [],
+    });
   } catch (error: unknown) {
     console.log(error);
     res.redirect("/signup");
@@ -72,6 +87,7 @@ export const postLogin = async (req: Request, res: Response) => {
 export const postSignup = (req: Request, res: Response) => {
   const email = req.body.email;
   const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
 
   const errors = validationResult(req);
 
@@ -80,6 +96,8 @@ export const postSignup = (req: Request, res: Response) => {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: { email, password, confirmPassword },
+      validationErrors: errors.array(),
     });
   }
 
