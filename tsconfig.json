@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // версия JS, которую TS будет генерировать
+    "module": "NodeNext", // современный Node.js модуль
+    "moduleResolution": "NodeNext", // способ поиска модулей
+    "outDir": "dist", // куда компилируются JS файлы
+    "rootDir": "src", // откуда брать TS файлы
+    "strict": true, // включает все строгие проверки
+    "esModuleInterop": true, // чтобы можно было импортировать CommonJS модули через import
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true, // пропускает проверку типов в node_modules
+    "sourceMap": true // для дебага — чтобы можно было видеть TS файлы в Node debugger
+  },
+  "include": ["src"], // компилировать все файлы из src
+  "exclude": ["node_modules", "dist"] // исключить node_modules и dist
+}
