@@ -1,6 +1,8 @@
 import Product, { ProductType } from "../models/product.js";
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import { deleteFile } from "../util/file.js";
+import { Console } from "console";
 
 export const getAddProduct = (req: Request, res: Response) => {
   res.render("admin/edit-product", {
@@ -151,6 +153,7 @@ export const postEditProduct = (
       product.price = updatedPrice;
       product.description = updatedDesc;
       if (image) {
+        deleteFile(product.imageUrl);
         product.imageUrl = image.path;
       }
 
@@ -200,7 +203,12 @@ export const postDeleteProduct = (
 ) => {
   const prodId = req.body.productId;
 
-  Product.deleteOne({ _id: prodId, userId: req.user?._id })
+  Product.findById(prodId)
+    .then((prod: ProductType) => {
+      if (!prod) return next(new Error("Product not found"));
+      deleteFile(prod.imageUrl);
+      return Product.deleteOne({ _id: prodId, userId: req.user?._id });
+    })
     .then(() => {
       console.log("DESTROYED PRODUCT");
       res.redirect("/admin/products");

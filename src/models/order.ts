@@ -5,7 +5,7 @@ export type OrderType = {
   products: {
     product: ProductType;
     quantity: number;
-  };
+  }[];
   user: {
     email: string;
     userId: Types.ObjectId;
