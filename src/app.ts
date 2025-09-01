@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import mongoose, { Mongoose } from "mongoose";
 import csurf from "csurf";
 import flash from "connect-flash";
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
 
 import { get404, get500 } from "./controllers/error.js";
 import User from "./models/user.js";
@@ -26,12 +26,39 @@ const store = new MongoStore({
 });
 const csrfProtection = csurf();
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + "-" + file.originalname);
+  },
+});
+
+const fileFiter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    return cb(null, true);
+  }
+  return cb(null, false);
+};
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({ dest: "images" }).single("image"));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFiter }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: "my secret",
@@ -40,6 +67,7 @@ app.use(
     store,
   })
 );
+//creates secret and session of not exists
 app.use(csrfProtection);
 app.use(flash());
 
@@ -57,6 +85,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  //generates a fresh token derived from that secret.
   res.locals.csrfToken = req.csrfToken();
   next();
 });
