@@ -19,7 +19,7 @@ export const postAddProduct = (
   next: NextFunction
 ) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const imageUrl = req.body.image;
   const price = req.body.price;
   const description = req.body.description;
 

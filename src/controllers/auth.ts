@@ -3,9 +3,7 @@ import bcrypt from "bcryptjs";
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
-import User, {
-  UserType,
-} from "../../../online-shop — копия/src/models/user.js";
+import User, { UserType } from "../models/user.js";
 import { sendTestEmail } from "../mailer.js";
 
 export const getLogin = (req: Request, res: Response) => {

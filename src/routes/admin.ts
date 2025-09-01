@@ -18,7 +18,6 @@ router.get(
   "/add-product",
   [
     body("title").isString().trim().isLength({ min: 3 }),
-    body("imageUrl").isURL(),
     body("description").trim().isLength({ min: 5, max: 200 }),
     body("price").isFloat(),
   ],

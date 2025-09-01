@@ -1,7 +1,7 @@
 import express from "express";
 import { check, body } from "express-validator";
 
-import User from "../../../online-shop — копия/src/models/user.js";
+import User from "../models/user.js";
 
 import {
   getLogin,
