@@ -9,18 +9,35 @@ import { UserType } from "../models/user.js";
 import { OrderType } from "../models/order.js";
 import Order from "../models/order.js";
 
+const ITEMS_PER_PAGE = 2;
+
 export const getProducts = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const page = Number(req.query.page) || 1;
+  let totalItems: number;
+
   Product.find()
+    .countDocuments()
+    .then((numProducts: number) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products: ProductType[]) => {
-      console.log(products);
-      res.render("shop/product-list", {
+      res.render("shop/products-list", {
         prods: products,
-        pageTitle: "All Products",
+        pageTitle: "Products",
         path: "/products",
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err: unknown) => {
@@ -52,12 +69,28 @@ export const getProduct = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const getIndex = (req: Request, res: Response, next: NextFunction) => {
+  const page = Number(req.query.page) || 1;
+  let totalItems: number;
+
   Product.find()
+    .countDocuments()
+    .then((numProducts: number) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products: ProductType[]) => {
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err: unknown) => {
