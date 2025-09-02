@@ -196,12 +196,12 @@ export const getProducts = (
     });
 };
 
-export const postDeleteProduct = (
+export const deleteProduct = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const prodId = req.body.productId;
+  const prodId = req.params.productId;
 
   Product.findById(prodId)
     .then((prod: ProductType) => {
@@ -211,13 +211,9 @@ export const postDeleteProduct = (
     })
     .then(() => {
       console.log("DESTROYED PRODUCT");
-      res.redirect("/admin/products");
+      res.status(200).json({ message: "Success!" });
     })
-    .catch((err: unknown) => {
-      const error: Error & { httpStatusCode?: number } = new Error(
-        "Something went wrong."
-      );
-      error.httpStatusCode = 500;
-      return next(error);
-    });
+    .catch((err: unknown) =>
+      res.status(500).json({ message: "Deleting product failed!" })
+    );
 };
