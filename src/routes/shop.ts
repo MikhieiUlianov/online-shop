@@ -7,9 +7,10 @@ import {
   getCart,
   postCart,
   postCartDeleteProduct,
-  postOrder,
   getOrders,
   getInvoice,
+  getCheckout,
+  getCheckoutSuccess,
 } from "../controllers/shop.js";
 import { isAuth } from "../middleware/is-auth.js";
 
@@ -27,7 +28,11 @@ router.post("/cart", isAuth, postCart);
 
 router.post("/cart-delete-item", isAuth, postCartDeleteProduct);
 
-router.post("/create-order", isAuth, postOrder);
+router.get("/checkout", isAuth, getCheckout);
+
+router.get("/checkout/success", isAuth, getCheckoutSuccess);
+
+router.get("/checkout/cancel", isAuth, getCheckout);
 
 router.get("/orders", isAuth, getOrders);
 
